@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutterlingo/components/my_drawer.dart';
 import 'package:flutterlingo/services/firestore.dart';
 
 class HomePage extends StatefulWidget {
@@ -60,91 +61,92 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Levels'),
-          actions: [IconButton(onPressed: logout, icon: Icon(Icons.logout))],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: openLevelBox,
-          child: const Icon(Icons.add),
-        ),
-        body: StreamBuilder<QuerySnapshot>(
-          stream: firestoreService.getLevelsStream(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-              return Center(child: Text('No levels found'));
-            } else {
-              List<DocumentSnapshot> levelsList = snapshot.data!.docs;
+      appBar: AppBar(
+        title: Text('Levels'),
+        actions: [IconButton(onPressed: logout, icon: Icon(Icons.logout))],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: openLevelBox,
+        child: const Icon(Icons.add),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: firestoreService.getLevelsStream(),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return Center(child: Text('No levels found'));
+          } else {
+            List<DocumentSnapshot> levelsList = snapshot.data!.docs;
 
-              return ListView.builder(
-                itemCount: levelsList.length,
-                itemBuilder: (context, index) {
-                  DocumentSnapshot document = levelsList[index];
-                  String docId = document.id;
+            return ListView.builder(
+              itemCount: levelsList.length,
+              itemBuilder: (context, index) {
+                DocumentSnapshot document = levelsList[index];
+                String docId = document.id;
 
-                  // Cast document data to Map<String, dynamic>
-                  Map<String, dynamic> data =
-                      document.data() as Map<String, dynamic>;
-                  String levelText =
-                      data['name'] ?? 'Unnamed Level'; // Handle null values
+                // Cast document data to Map<String, dynamic>
+                Map<String, dynamic> data =
+                    document.data() as Map<String, dynamic>;
+                String levelText =
+                    data['name'] ?? 'Unnamed Level'; // Handle null values
 
-                  return ListTile(
-                      title: Text(levelText),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                              onPressed: () {
-                                openLevelBox(docId: docId);
-                                print('Selected Level ID: $docId');
-                              },
-                              icon: const Icon(Icons.settings)),
-                          IconButton(
+                return ListTile(
+                    title: Text(levelText),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
                             onPressed: () {
-                              // Show confirmation dialog before deleting
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Confirm Deletion'),
-                                  content: const Text(
-                                      'Are you sure you want to delete this level?'),
-                                  actions: <Widget>[
-                                    // Cancel button
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(
-                                            context); // Close the dialog without doing anything
-                                      },
-                                      child: const Text('Cancel'),
-                                    ),
-                                    // Confirm button
-                                    TextButton(
-                                      onPressed: () {
-                                        firestoreService.deleteLevel(docId);
-                                        print(
-                                            'Selected Level ID: $docId'); // Debug: Show the deleted level ID
-                                        Navigator.pop(
-                                            context); // Close the dialog after confirming
-                                      },
-                                      child: const Text('Delete'),
-                                    ),
-                                  ],
-                                ),
-                              );
+                              openLevelBox(docId: docId);
+                              print('Selected Level ID: $docId');
                             },
-                            icon: const Icon(Icons.delete),
-                          ),
-                        ],
-                      ));
-                },
-              );
-            }
-          },
-        ));
+                            icon: const Icon(Icons.settings)),
+                        IconButton(
+                          onPressed: () {
+                            // Show confirmation dialog before deleting
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text('Confirm Deletion'),
+                                content: const Text(
+                                    'Are you sure you want to delete this level?'),
+                                actions: <Widget>[
+                                  // Cancel button
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(
+                                          context); // Close the dialog without doing anything
+                                    },
+                                    child: const Text('Cancel'),
+                                  ),
+                                  // Confirm button
+                                  TextButton(
+                                    onPressed: () {
+                                      firestoreService.deleteLevel(docId);
+                                      print(
+                                          'Selected Level ID: $docId'); // Debug: Show the deleted level ID
+                                      Navigator.pop(
+                                          context); // Close the dialog after confirming
+                                    },
+                                    child: const Text('Delete'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.delete),
+                        ),
+                      ],
+                    ));
+              },
+            );
+          }
+        },
+      ),
+      drawer: MyDrawer(),
+    );
   }
 }
