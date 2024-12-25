@@ -138,6 +138,23 @@ class _SignInState extends State<SignIn> {
                           child: CircularProgressIndicator(),
                         ),
                       const SizedBox(height: 20),
+                      Center(
+                          child: const Text("OR", textAlign: TextAlign.center)),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () async {
+                            await authMethods.signInWithGoogle(context);
+                          },
+                          icon: const Image(
+                            image: AssetImage("images/google.png"),
+                            width: 20.0,
+                          ),
+                          label: const Text("SIGN IN WITH GOOGLE"),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -160,23 +177,6 @@ class _SignInState extends State<SignIn> {
                             ),
                           ),
                         ],
-                      ),
-                      const SizedBox(height: 20),
-                      Center(
-                          child: const Text("OR", textAlign: TextAlign.center)),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: double.infinity,
-                        child: OutlinedButton.icon(
-                          onPressed: () async {
-                            await authMethods.signInWithGoogle(context);
-                          },
-                          icon: const Image(
-                            image: AssetImage("images/google.png"),
-                            width: 20.0,
-                          ),
-                          label: const Text("SIGN IN WITH GOOGLE"),
-                        ),
                       ),
                     ],
                   ),
