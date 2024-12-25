@@ -41,6 +41,7 @@ dependencies:
   google_fonts: ^6.2.1
   fluttertoast: ^8.2.10
   google_sign_in: ^6.2.2
+  animate_do: ^3.3.4
 
 dev_dependencies:
   flutter_test:
