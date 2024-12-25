@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutterlingo/pages/home.dart';
 import 'package:flutterlingo/pages/signin.dart';
 import 'package:flutterlingo/pages/signup.dart';
 import 'package:flutter/material.dart';
@@ -12,16 +14,58 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Flutter Demo',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
+      debugShowCheckedModeBanner: false,
+      title: 'Task Management',
+      theme: ThemeData(
+        fontFamily: 'Cera Pro',
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.black,
+            minimumSize: const Size(double.infinity, 60),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+          ),
         ),
-        home: SignIn());
+        inputDecorationTheme: InputDecorationTheme(
+          contentPadding: const EdgeInsets.all(27),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.grey.shade300,
+              width: 3,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+              width: 3,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          // Check if authentication has data (user is signed in)
+          if (snapshot.hasData) {
+            // User is signed in, show HomePage
+            return const Home();
+          }
+
+          // If no user is found, show LoginOrReg screen
+          return const SignIn();
+        },
+      ),
+    );
   }
 }
