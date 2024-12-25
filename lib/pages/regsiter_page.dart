@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutterlingo/pages/home_page.dart';
 import 'package:flutterlingo/services/auth/authFunctions.dart';
 import 'package:flutterlingo/components/helper_func.dart';
 import 'package:flutterlingo/components/my_button.dart';
@@ -19,27 +20,47 @@ final TextEditingController passwordController = TextEditingController();
 final TextEditingController confirmPasswordController = TextEditingController();
 
 class _RegisterPageState extends State<RegisterPage> {
-  Future<void> register() async {
-    showDialog(
-        context: context,
-        builder: (context) => const Center(
-              child: CircularProgressIndicator(),
-            ));
+  bool isLoading = false;
 
+  Future<void> register() async {
     if (passwordController.text != confirmPasswordController.text) {
-      Navigator.pop(context); // Close the loading dialog
-      displayMessageToUser(
-          "Passwords don't match", context); // Show the message
-      return; // Exit the function to prevent further execution
+      if (mounted) {
+        Navigator.pop(context); // Close the dialog
+        displayMessageToUser("Passwords don't match", context);
+      }
+      return; // Exit early if passwords don't match
     }
 
     try {
+      print("Attempting to register user with email: ${emailController.text}");
       await registerUser(
-          email: emailController.text, password: passwordController.text);
-      Navigator.pop(context);
+          email: emailController.text,
+          password: passwordController.text,
+          context: context);
+
+      if (mounted) {
+        print("User registered and data saved successfully");
+
+        Navigator.pop(context); // Close the dialog
+        await Future.delayed(const Duration(
+            milliseconds: 200)); // Short delay for smooth transition
+
+        // Dismiss keyboard before navigating
+        FocusScope.of(context).unfocus();
+      }
     } on FirebaseAuthException catch (e) {
-      Navigator.pop(context);
-      displayMessageToUser(e.code, context);
+      if (mounted) {
+        Navigator.pop(context); // Close the dialog
+        displayMessageToUser(e.code, context);
+        Navigator.pop(context);
+      }
+      print("FirebaseAuthException: ${e.code}");
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Close the dialog
+        displayMessageToUser('An unexpected error occurred', context);
+      }
+      print("Unexpected error: $e");
     }
   }
 
@@ -51,7 +72,6 @@ class _RegisterPageState extends State<RegisterPage> {
       body: Center(
         child: SafeArea(
           child: SingleChildScrollView(
-            // Allows the screen to scroll when keyboard is shown
             child: Padding(
               padding: const EdgeInsets.all(25.0),
               child: Column(
@@ -62,53 +82,45 @@ class _RegisterPageState extends State<RegisterPage> {
                     size: 80,
                     color: Theme.of(context).colorScheme.inversePrimary,
                   ),
-                  const SizedBox(
-                    height: 25,
-                  ),
+                  const SizedBox(height: 25),
                   Text(
                     'R E G I S T E R',
                     style: TextStyle(fontSize: 20),
                   ),
-                  const SizedBox(
-                    height: 50,
-                  ),
+                  const SizedBox(height: 50),
                   MyTextfield(
-                      hintText: "Email",
-                      obscureText: false,
-                      controller: emailController),
-                  const SizedBox(
-                    height: 10,
+                    hintText: "Email",
+                    obscureText: false,
+                    controller: emailController,
                   ),
+                  const SizedBox(height: 10),
                   MyTextfield(
-                      hintText: "Password",
-                      obscureText: true,
-                      controller: passwordController),
-                  const SizedBox(
-                    height: 10,
+                    hintText: "Password",
+                    obscureText: true,
+                    controller: passwordController,
                   ),
+                  const SizedBox(height: 10),
                   MyTextfield(
-                      hintText: "Confirm Password",
-                      obscureText: true,
-                      controller: confirmPasswordController),
-                  const SizedBox(
-                    height: 25,
+                    hintText: "Confirm Password",
+                    obscureText: true,
+                    controller: confirmPasswordController,
                   ),
-                  MyButton(text: 'register', onTap: register),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    const Text(
-                      "Don't have an account?",
-                    ),
-                    GestureDetector(
-                      onTap: widget.onTap,
-                      child: const Text(
-                        " Login here?",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                  const SizedBox(height: 25),
+                  MyButton(text: 'Register', onTap: register),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Don't have an account?"),
+                      GestureDetector(
+                        onTap: widget.onTap,
+                        child: const Text(
+                          " Login here?",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
-                    ),
-                  ]),
+                    ],
+                  ),
                 ],
               ),
             ),

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class MyDrawer extends StatefulWidget {
@@ -35,6 +36,7 @@ class _MyDrawerState extends State<MyDrawer> {
               title: Text("P R O F I L E"),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.pushNamed(context, '/profile_page');
               },
             ),
           ),
@@ -45,6 +47,7 @@ class _MyDrawerState extends State<MyDrawer> {
               title: Text("U S E R S"),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.pushNamed(context, '/users_page');
               },
             ),
           ),

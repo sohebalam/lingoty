@@ -1,13 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutterlingo/services/auth/auth.dart';
-import 'package:flutterlingo/services/auth/login_or_reg.dart';
 import 'package:flutterlingo/firebase_options.dart';
 import 'package:flutterlingo/pages/home_page.dart';
-import 'package:flutterlingo/theme/darkmode.dart';
-import 'package:flutterlingo/theme/lightmode.dart';
+import 'package:flutterlingo/services/auth/login_or_reg.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
@@ -18,12 +16,52 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const Auth(),
-      theme: lightMode,
-      darkTheme: darkMode,
+      title: 'Task Management',
+      theme: ThemeData(
+        fontFamily: 'Cera Pro',
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.black,
+            minimumSize: const Size(double.infinity, 60),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          contentPadding: const EdgeInsets.all(27),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.grey.shade300,
+              width: 3,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+              // color: Pallete.gradient2,
+              width: 3,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+      home: StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+
+            if (snapshot.hasData) {
+              return const HomePage();
+            }
+            return const LoginOrReg();
+          }),
     );
   }
 }
