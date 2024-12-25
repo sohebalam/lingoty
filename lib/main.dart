@@ -1,8 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutterlingo/services/auth/auth.dart';
+import 'package:flutterlingo/services/auth/login_or_reg.dart';
 import 'package:flutterlingo/firebase_options.dart';
 import 'package:flutterlingo/pages/home_page.dart';
-import 'package:flutterlingo/pages/login_page.dart';
 import 'package:flutterlingo/theme/darkmode.dart';
 import 'package:flutterlingo/theme/lightmode.dart';
 
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
     // TODO: implement build
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const LoginPage(),
+      home: const Auth(),
       theme: lightMode,
       darkTheme: darkMode,
     );
