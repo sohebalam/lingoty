@@ -3,6 +3,11 @@ import 'package:flutterlingo/pages/home.dart';
 import 'package:flutterlingo/pages/signup.dart';
 import 'package:flutterlingo/services/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutterlingo/pages/home.dart';
+import 'package:flutterlingo/pages/signup.dart';
+import 'package:flutterlingo/services/auth.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({super.key});
@@ -13,40 +18,49 @@ class SignIn extends StatefulWidget {
 
 class _SignInState extends State<SignIn> {
   String email = "", password = "";
-  bool isLoading = false; // Track loading state
+  bool isLoading = false;
 
-  TextEditingController mailcontroller = new TextEditingController();
-  TextEditingController passwordcontroller = new TextEditingController();
+  TextEditingController mailcontroller = TextEditingController();
+  TextEditingController passwordcontroller = TextEditingController();
+  AuthMethods authMethods = AuthMethods();
 
-  userlogin() async {
+  Future<void> userLogin() async {
     setState(() {
-      isLoading = true; // Show loading indicator
+      isLoading = true;
     });
 
     try {
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => Home()));
+        context,
+        MaterialPageRoute(builder: (context) => const Home()),
+      );
     } on FirebaseAuthException catch (e) {
       setState(() {
-        isLoading = false; // Hide loading indicator if login fails
+        isLoading = false;
       });
+      String errorMessage;
       if (e.code == 'user-not-found') {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            backgroundColor: Colors.orangeAccent,
-            content: Text(
-              "No User Found for that Email",
-              style: TextStyle(fontSize: 20.0),
-            )));
-      } else if (e.code == "wrong-password") {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            backgroundColor: Colors.orangeAccent,
-            content: Text(
-              "Wrong password Provided by User",
-              style: TextStyle(fontSize: 20.0),
-            )));
+        errorMessage = "No user found for that email.";
+      } else if (e.code == 'wrong-password') {
+        errorMessage = "Wrong password provided.";
+      } else if (e.code == 'invalid-credential') {
+        errorMessage =
+            "The supplied auth credential is incorrect, malformed, or expired.";
+      } else {
+        errorMessage = "An unknown error occurred.";
       }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.orangeAccent,
+          content: Text(
+            errorMessage,
+            style: const TextStyle(fontSize: 16.0),
+          ),
+        ),
+      );
     }
   }
 
@@ -56,190 +70,117 @@ class _SignInState extends State<SignIn> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.asset("images/welcome_screen.png"),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [
-                    Color(0xFF9dc3d5),
-                    Color(0xFF9ac3d4),
-                    Color.fromARGB(145, 27, 94, 118)
-                  ], begin: Alignment.topLeft, end: Alignment.bottomRight)),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 30.0, right: 30.0),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 30.0,
+                Image.asset("images/welcome_screen.png", height: 200),
+                Form(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: mailcontroller,
+                        decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.person_outline_outlined),
+                          labelText: "Email",
+                          hintText: "Enter your email",
+                          border: OutlineInputBorder(),
                         ),
-                        TextField(
-                          controller: mailcontroller,
-                          decoration: InputDecoration(
-                            hintText: "Email",
-                            hintStyle: TextStyle(
-                                color: Color.fromARGB(255, 255, 255, 255),
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.white, width: 1.5),
-                            ),
-                          ),
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 30.0,
-                        ),
-                        TextField(
-                          controller: passwordcontroller,
-                          decoration: InputDecoration(
-                            hintText: "Password",
-                            hintStyle: TextStyle(
-                                color: Color.fromARGB(255, 255, 255, 255),
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.white, width: 1.5),
-                            ),
-                          ),
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
-                          obscureText: true,
-                        ),
-                        SizedBox(
-                          height: 30.0,
-                        ),
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(right: 20.0, left: 10.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Sign in",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 25.0,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  if (mailcontroller.text != "" &&
-                                      passwordcontroller.text != "") {
-                                    setState(() {
-                                      email = mailcontroller.text;
-                                      password = passwordcontroller.text;
-                                    });
-                                  }
-                                  userlogin();
-                                },
-                                child: Material(
-                                  elevation: 5.0,
-                                  borderRadius: BorderRadius.circular(60),
-                                  child: Container(
-                                    padding: EdgeInsets.all(20),
-                                    decoration: BoxDecoration(
-                                        color: Color(0xFF4C7296),
-                                        borderRadius:
-                                            BorderRadius.circular(60)),
-                                    child: Icon(
-                                      Icons.arrow_forward,
-                                      color: Colors.white,
-                                      size: 30.0,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            ],
+                      ),
+                      const SizedBox(height: 20),
+                      TextFormField(
+                        controller: passwordcontroller,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.fingerprint),
+                          labelText: "Password",
+                          hintText: "Enter your password",
+                          border: const OutlineInputBorder(),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                passwordcontroller.text = "";
+                              });
+                            },
+                            icon: const Icon(Icons.remove_red_eye_sharp),
                           ),
                         ),
-                        SizedBox(
-                          height: 40.0,
+                      ),
+                      const SizedBox(height: 20),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {},
+                          child: const Text("Forgot Password?"),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                AuthMethods().signInWithGoogle(context);
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Image.asset(
-                                  "images/google.png",
-                                  height: 40,
-                                  width: 40,
-                                  fit: BoxFit.cover,
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (mailcontroller.text.isNotEmpty &&
+                                passwordcontroller.text.isNotEmpty) {
+                              setState(() {
+                                email = mailcontroller.text;
+                                password = passwordcontroller.text;
+                              });
+                              userLogin();
+                            }
+                          },
+                          child: const Text("SIGN IN"),
+                        ),
+                      ),
+                      if (isLoading)
+                        const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Don't have an account? "),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const SignUp(),
                                 ),
-                              ),
-                            ),
-                            SizedBox(
-                              width: 30.0,
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                // AuthMethods().signInWithApple();
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: Image.asset(
-                                  "images/apple.png",
-                                  height: 40,
-                                  width: 40,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                        SizedBox(
-                          height: 20.0,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Don't have an account? ",
+                              );
+                            },
+                            child: const Text(
+                              "Sign Up",
                               style: TextStyle(
-                                  color: Color.fromARGB(255, 255, 255, 255),
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.w500),
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => SignUp()));
-                                },
-                                child: Text(
-                                  "Sign Up",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20.0,
-                                      fontWeight: FontWeight.bold),
-                                )),
-                          ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Center(
+                          child: const Text("OR", textAlign: TextAlign.center)),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () async {
+                            await authMethods.signInWithGoogle(context);
+                          },
+                          icon: const Image(
+                            image: AssetImage("images/google.png"),
+                            width: 20.0,
+                          ),
+                          label: const Text("SIGN IN WITH GOOGLE"),
                         ),
-                        // Show CircularProgressIndicator when loading
-                        if (isLoading)
-                          Center(
-                            child: CircularProgressIndicator(),
-                          )
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                )
+                ),
               ],
             ),
           ),
