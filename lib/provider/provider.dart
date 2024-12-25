@@ -70,4 +70,6 @@ class UserProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void setLoading(bool bool) {}
 }
