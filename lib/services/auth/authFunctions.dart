@@ -13,11 +13,10 @@ Future<void> registerUser({
   required BuildContext context,
 }) async {
   // Show the CircularProgressIndicator
-  showDialog(
-    context: context,
-    barrierDismissible: false, // Prevent dismissal during processing
-    builder: (context) => const Center(child: CircularProgressIndicator()),
-  );
+  // showDialog(
+  //   context: context,
+  //   builder: (context) => const Center(child: CircularProgressIndicator()),
+  // );
 
   try {
     // Create user with email and password

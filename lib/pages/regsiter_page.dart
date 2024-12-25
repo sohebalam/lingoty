@@ -24,43 +24,74 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<void> register() async {
     if (passwordController.text != confirmPasswordController.text) {
-      if (mounted) {
-        Navigator.pop(context); // Close the dialog
-        displayMessageToUser("Passwords don't match", context);
-      }
+      displayMessageToUser("Passwords don't match", context);
       return; // Exit early if passwords don't match
     }
 
+    // Show loading indicator
+    setState(() {
+      isLoading = true;
+    });
+
+    // Show the loading dialog
+    showDialog(
+      context: context,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
     try {
       print("Attempting to register user with email: ${emailController.text}");
+
+      // Try to register the user
       await registerUser(
-          email: emailController.text,
-          password: passwordController.text,
-          context: context);
+        email: emailController.text,
+        password: passwordController.text,
+        context: context,
+      );
 
       if (mounted) {
         print("User registered and data saved successfully");
 
-        Navigator.pop(context); // Close the dialog
-        await Future.delayed(const Duration(
-            milliseconds: 200)); // Short delay for smooth transition
+        // Close the dialog and dismiss loading
+        Navigator.pop(context); // Close the loading dialog
+        setState(() {
+          isLoading = false;
+        });
+
+        // Short delay for smooth transition
+        await Future.delayed(const Duration(milliseconds: 200));
 
         // Dismiss keyboard before navigating
         FocusScope.of(context).unfocus();
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
+        // Close the loading dialog before showing the error
         Navigator.pop(context); // Close the dialog
-        displayMessageToUser(e.code, context);
-        Navigator.pop(context);
+
+        // Dismiss loading and show appropriate message
+        setState(() {
+          isLoading = false;
+        });
+
+        if (e.code == 'email-already-in-use') {
+          displayMessageToUser(
+              'This email is already registered. Please log in.', context);
+        } else {
+          displayMessageToUser(e.message ?? "An error occurred", context);
+        }
+        print("FirebaseAuthException: ${e.code}");
       }
-      print("FirebaseAuthException: ${e.code}");
     } catch (e) {
       if (mounted) {
-        Navigator.pop(context); // Close the dialog
+        // Handle any other unexpected errors
+        Navigator.pop(context); // Close the dialog before showing the error
+        setState(() {
+          isLoading = false;
+        });
         displayMessageToUser('An unexpected error occurred', context);
+        print("Unexpected error: $e");
       }
-      print("Unexpected error: $e");
     }
   }
 
