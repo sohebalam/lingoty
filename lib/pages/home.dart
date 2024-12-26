@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Home"),
+        title: const Text("Books by Level"),
         actions: [
           IconButton(
             onPressed: _logout,
