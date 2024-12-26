@@ -5,7 +5,6 @@ import 'package:flutterlingo/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutterlingo/pages/home.dart';
 import 'package:flutterlingo/pages/signup.dart';
 import 'package:flutterlingo/services/auth.dart';
 
@@ -34,7 +33,7 @@ class _SignInState extends State<SignIn> {
           .signInWithEmailAndPassword(email: email, password: password);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const Home()),
+        MaterialPageRoute(builder: (context) => const HomePage()),
       );
     } on FirebaseAuthException catch (e) {
       setState(() {

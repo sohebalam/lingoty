@@ -29,7 +29,7 @@ class _SignUpState extends State<SignUp> {
           ),
         ));
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const Home()));
+            context, MaterialPageRoute(builder: (context) => const HomePage()));
       } on FirebaseAuthException catch (e) {
         String message;
         if (e.code == 'weak-password') {
@@ -71,15 +71,6 @@ class _SignUpState extends State<SignUp> {
                       height: size.height * 0.2,
                     ),
                     const SizedBox(height: 20.0),
-                    // Text(
-                    //   "Create Account",
-                    //   // style: Theme.of(context).textTheme.headline1,
-                    // ),
-                    // const SizedBox(height: 8.0),
-                    // Text(
-                    //   "Sign up to get started with your journey!",
-                    //   // style: Theme.of(context).textTheme.bodyText1,
-                    // ),
                   ],
                 ),
 

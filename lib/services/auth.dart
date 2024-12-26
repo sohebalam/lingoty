@@ -42,7 +42,7 @@ class AuthMethods {
           .addUser(userdetails.uid, userInfoMap)
           .then((value) {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Home()));
+            context, MaterialPageRoute(builder: (context) => HomePage()));
       });
     }
   }

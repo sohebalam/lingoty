@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
           // Check if authentication has data (user is signed in)
           if (snapshot.hasData) {
             // User is signed in, show HomePage
-            return const Home();
+            return const HomePage();
           }
 
           // If no user is found, show LoginOrReg screen

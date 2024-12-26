@@ -1,24 +1,82 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutterlingo/pages/signin.dart';
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _HomeState extends State<Home> {
-  // Function to log out the user
+class _HomePageState extends State<HomePage> {
+  List<Map<String, dynamic>> levels = [];
+  bool isLoading = false;
+  // final AuthService _authService = AuthService();
+  // final Stream<bool> isLoggedInStream =
+  //     FirebaseAuth.instance.authStateChanges().map((user) => user != null);
+
+  @override
+  void initState() {
+    super.initState();
+    fetchBooksGroupedByLevels();
+  }
+
+  Future<void> fetchBooksGroupedByLevels() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      // Fetch books from Firestore and group them by their level attribute
+      final booksSnapshot =
+          await FirebaseFirestore.instance.collection('books').get();
+
+      final Map<String, List<Map<String, dynamic>>> groupedBooks = {};
+
+      // Group books by their 'level' attribute
+      for (var bookDoc in booksSnapshot.docs) {
+        final bookData = bookDoc.data();
+        final level = bookData['level'];
+
+        if (level != null) {
+          // Ensure the level group exists
+          if (!groupedBooks.containsKey(level)) {
+            groupedBooks[level] = [];
+          }
+
+          groupedBooks[level]?.add({
+            'id': bookDoc.id,
+            'name': bookData['title'],
+            // Add other book data if necessary
+          });
+        }
+      }
+
+      // Prepare levels data
+      final List<Map<String, dynamic>> levelsData =
+          groupedBooks.entries.map((entry) {
+        return {
+          'name': entry.key,
+          'books': entry.value,
+        };
+      }).toList();
+
+      setState(() {
+        levels = levelsData;
+      });
+    } catch (e) {
+      print('Error fetching books: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   Future<void> _logout() async {
     try {
       await FirebaseAuth.instance.signOut();
-      // Navigate to the SignIn page after logging out
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const SignIn()),
-      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -30,6 +88,17 @@ class _HomeState extends State<Home> {
         ),
       );
     }
+  }
+
+  void _navigateToBookPages(String bookId) {
+    // Navigate to the book pages screen, passing the bookId as a parameter
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(
+    //     builder: (context) =>
+    //         BookPagesPage(bookId: bookId), // Make sure you define this screen
+    //   ),
+    // );
   }
 
   @override
@@ -45,12 +114,37 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      body: const Center(
-        child: Text(
-          "Welcome to the Home Page!",
-          style: TextStyle(fontSize: 18.0),
-        ),
-      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: levels.length,
+              itemBuilder: (context, index) {
+                final level = levels[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 16.0),
+                  child: ExpansionTile(
+                    title: Text(
+                      level['name'] ?? 'Unknown Level',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    children: level['books'].isNotEmpty
+                        ? level['books'].map<Widget>((book) {
+                            return ListTile(
+                              title: Text(book['name'] ?? 'Unknown Book'),
+                              onTap: () => _navigateToBookPages(
+                                  book['id']), // Handle tap to navigate
+                            );
+                          }).toList()
+                        : [
+                            const ListTile(
+                              title: Text('No books assigned to this level'),
+                            ),
+                          ],
+                  ),
+                );
+              },
+            ),
     );
   }
 }
