@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutterlingo/pages/bookPage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,9 +13,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> levels = [];
   bool isLoading = false;
-  // final AuthService _authService = AuthService();
-  // final Stream<bool> isLoggedInStream =
-  //     FirebaseAuth.instance.authStateChanges().map((user) => user != null);
 
   @override
   void initState() {
@@ -92,13 +90,13 @@ class _HomePageState extends State<HomePage> {
 
   void _navigateToBookPages(String bookId) {
     // Navigate to the book pages screen, passing the bookId as a parameter
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(
-    //     builder: (context) =>
-    //         BookPagesPage(bookId: bookId), // Make sure you define this screen
-    //   ),
-    // );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            BookPagesPage(bookId: bookId), // Make sure you define this screen
+      ),
+    );
   }
 
   @override
@@ -132,8 +130,11 @@ class _HomePageState extends State<HomePage> {
                         ? level['books'].map<Widget>((book) {
                             return ListTile(
                               title: Text(book['name'] ?? 'Unknown Book'),
-                              onTap: () => _navigateToBookPages(
-                                  book['id']), // Handle tap to navigate
+                              onTap: () {
+                                print(book['id']); // Print book id
+                                _navigateToBookPages(
+                                    book['id']); // Handle tap to navigate
+                              }, // Handle tap to navigate
                             );
                           }).toList()
                         : [
