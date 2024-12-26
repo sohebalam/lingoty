@@ -240,34 +240,23 @@ class _BookPagesPageState extends State<BookPagesPage> {
                 );
         },
       ),
-      bottomNavigationBar: LayoutBuilder(
-        builder: (context, constraints) {
-          bool isLandscape = constraints.maxWidth > constraints.maxHeight;
-          return isLandscape
-              ? SizedBox.shrink() // Hide the navigation bar in landscape
-              : Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, size: 32),
-                        color: currentPage > 0 ? Colors.blue : Colors.grey,
-                        onPressed: currentPage > 0 ? _prevPage : null,
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.arrow_forward, size: 32),
-                        color: currentPage < pages.length - 1
-                            ? Colors.blue
-                            : Colors.grey,
-                        onPressed:
-                            currentPage < pages.length - 1 ? _nextPage : null,
-                      ),
-                    ],
-                  ),
-                );
-        },
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.arrow_back, size: 32),
+              color: currentPage > 0 ? Colors.blue : Colors.grey,
+              onPressed: currentPage > 0 ? _prevPage : null,
+            ),
+            IconButton(
+              icon: const Icon(Icons.arrow_forward, size: 32),
+              color: currentPage < pages.length - 1 ? Colors.blue : Colors.grey,
+              onPressed: currentPage < pages.length - 1 ? _nextPage : null,
+            ),
+          ],
+        ),
       ),
     );
   }
