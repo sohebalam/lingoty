@@ -64,6 +64,7 @@ class _BookPagesPageState extends State<BookPagesPage> {
             'id': page['id'] ?? '',
             'image': page['image'] ?? '',
             'translations': page['translations'] ?? [],
+            'isCover': page['isCover'] ?? false, // Adding isCover flag
           };
         }));
 
@@ -152,8 +153,17 @@ class _BookPagesPageState extends State<BookPagesPage> {
                               Expanded(
                                 flex: 1,
                                 child: Center(
-                                  child: pages[currentPage]['image'].isNotEmpty
+                                  child: pages[currentPage]['isCover']
                                       ? Image.network(
+                                          pages[currentPage]['image'],
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Image.asset(
+                                                'images/fallback_image.jpeg');
+                                          },
+                                        )
+                                      : Image.network(
                                           pages[currentPage]['image'],
                                           fit: BoxFit.contain,
                                           errorBuilder:
@@ -161,93 +171,19 @@ class _BookPagesPageState extends State<BookPagesPage> {
                                             return Image.asset(
                                                 'images/fallback_image.jpeg');
                                           },
-                                        )
-                                      : Image.asset(
-                                          'images/fallback_image.jpeg'),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: SingleChildScrollView(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        const Text(
-                                          'Translations:',
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold),
-                                          textAlign: TextAlign.center,
                                         ),
-                                        ...List.generate(
-                                          pages[currentPage]['translations']
-                                              .length,
-                                          (index) {
-                                            final translation =
-                                                pages[currentPage]
-                                                    ['translations'][index];
-                                            final text = translation['text'] ??
-                                                'No translation available.';
-                                            final language =
-                                                translation['language'] ??
-                                                    'Unknown Language';
-                                            return Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical: 4.0),
-                                              child: Text(
-                                                '$language: $text',
-                                                textAlign: TextAlign.center,
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
                                 ),
                               ),
-                            ],
-                          )
-                        : Column(
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: Center(
-                                  child: pages[currentPage]['image'].isNotEmpty
-                                      ? Image.network(
-                                          pages[currentPage]['image'],
-                                          fit: BoxFit.contain,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return Image.asset(
-                                                'images/fallback_image.jpeg');
-                                          },
-                                        )
-                                      : Image.asset(
-                                          'images/fallback_image.jpeg'),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: SingleChildScrollView(
-                                    child: Center(
+                              if (!pages[currentPage]['isCover']) ...[
+                                Expanded(
+                                  flex: 1,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: SingleChildScrollView(
                                       child: Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          const Text(
-                                            'Translations:',
-                                            style: TextStyle(
-                                                fontSize: 18,
-                                                fontWeight: FontWeight.bold),
-                                            textAlign: TextAlign.center,
-                                          ),
                                           ...List.generate(
                                             pages[currentPage]['translations']
                                                 .length,
@@ -266,7 +202,7 @@ class _BookPagesPageState extends State<BookPagesPage> {
                                                     const EdgeInsets.symmetric(
                                                         vertical: 4.0),
                                                 child: Text(
-                                                  '$language: $text',
+                                                  '$text',
                                                   textAlign: TextAlign.center,
                                                 ),
                                               );
@@ -277,7 +213,82 @@ class _BookPagesPageState extends State<BookPagesPage> {
                                     ),
                                   ),
                                 ),
+                              ],
+                            ],
+                          )
+                        : Column(
+                            children: [
+                              // Image section
+                              Expanded(
+                                flex: 1, // Top half of the screen for the image
+                                child: Center(
+                                  child: pages[currentPage]['isCover']
+                                      ? Image.network(
+                                          pages[currentPage]['image'],
+                                          fit: BoxFit
+                                              .cover, // The image will cover the top half
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Image.asset(
+                                                'images/fallback_image.jpeg');
+                                          },
+                                        )
+                                      : Image.network(
+                                          pages[currentPage]['image'],
+                                          fit: BoxFit
+                                              .contain, // Ensure the image is contained properly
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Image.asset(
+                                                'images/fallback_image.jpeg');
+                                          },
+                                        ),
+                                ),
                               ),
+
+                              // Text section - Translations
+                              if (!pages[currentPage]['isCover']) ...[
+                                Expanded(
+                                  flex:
+                                      1, // Bottom half of the screen for the text
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment
+                                              .center, // Vertically center the text
+                                          crossAxisAlignment: CrossAxisAlignment
+                                              .center, // Horizontally center the text
+                                          children: [
+                                            // Loop through translations and display them
+                                            ...List.generate(
+                                              pages[currentPage]['translations']
+                                                  .length,
+                                              (index) {
+                                                final translation =
+                                                    pages[currentPage]
+                                                        ['translations'][index];
+                                                final text = translation[
+                                                        'text'] ??
+                                                    'No translation available.';
+                                                return Padding(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(vertical: 4.0),
+                                                  child: Text(
+                                                    '$text',
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ],
                           );
                   },
