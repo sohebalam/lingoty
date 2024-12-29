@@ -112,7 +112,7 @@ class _BookPagesPageState extends State<BookPagesPage> {
                     Expanded(
                       flex: 1,
                       child: Container(
-                        color: Colors.grey[300], // Skeleton color
+                        color: Colors.grey[400], // Skeleton color
                         width: double.infinity,
                         height: double.infinity,
                       ),
@@ -127,8 +127,7 @@ class _BookPagesPageState extends State<BookPagesPage> {
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: Container(
                               height: 20.0,
-                              width: double.infinity,
-                              color: Colors.grey[300], // Skeleton color
+                              color: Colors.grey[400], // Skeleton color
                             ),
                           );
                         },
@@ -153,25 +152,32 @@ class _BookPagesPageState extends State<BookPagesPage> {
                               Expanded(
                                 flex: 1,
                                 child: Center(
-                                  child: pages[currentPage]['isCover']
-                                      ? Image.network(
+                                  child: FutureBuilder(
+                                    future:
+                                        _loadImage(pages[currentPage]['image']),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return Skeletonizer(
+                                          enabled: true,
+                                          child: Container(
+                                            color: Colors
+                                                .grey[400], // Skeleton color
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                          ),
+                                        );
+                                      } else if (snapshot.hasError) {
+                                        return Image.asset(
+                                            'images/fallback_image.jpeg');
+                                      } else {
+                                        return Image.network(
                                           pages[currentPage]['image'],
                                           fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return Image.asset(
-                                                'images/fallback_image.jpeg');
-                                          },
-                                        )
-                                      : Image.network(
-                                          pages[currentPage]['image'],
-                                          fit: BoxFit.contain,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return Image.asset(
-                                                'images/fallback_image.jpeg');
-                                          },
-                                        ),
+                                        );
+                                      }
+                                    },
+                                  ),
                                 ),
                               ),
                               if (!pages[currentPage]['isCover']) ...[
@@ -222,27 +228,32 @@ class _BookPagesPageState extends State<BookPagesPage> {
                               Expanded(
                                 flex: 1, // Top half of the screen for the image
                                 child: Center(
-                                  child: pages[currentPage]['isCover']
-                                      ? Image.network(
+                                  child: FutureBuilder(
+                                    future:
+                                        _loadImage(pages[currentPage]['image']),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return Skeletonizer(
+                                          enabled: true,
+                                          child: Container(
+                                            color: Colors
+                                                .grey[400], // Skeleton color
+                                            width: double.infinity,
+                                            height: double.infinity,
+                                          ),
+                                        );
+                                      } else if (snapshot.hasError) {
+                                        return Image.asset(
+                                            'images/fallback_image.jpeg');
+                                      } else {
+                                        return Image.network(
                                           pages[currentPage]['image'],
-                                          fit: BoxFit
-                                              .cover, // The image will cover the top half
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return Image.asset(
-                                                'images/fallback_image.jpeg');
-                                          },
-                                        )
-                                      : Image.network(
-                                          pages[currentPage]['image'],
-                                          fit: BoxFit
-                                              .contain, // Ensure the image is contained properly
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return Image.asset(
-                                                'images/fallback_image.jpeg');
-                                          },
-                                        ),
+                                          fit: BoxFit.cover,
+                                        );
+                                      }
+                                    },
+                                  ),
                                 ),
                               ),
 
@@ -312,5 +323,9 @@ class _BookPagesPageState extends State<BookPagesPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _loadImage(String url) async {
+    await precacheImage(NetworkImage(url), context);
   }
 }
