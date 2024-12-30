@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutterlingo/pages/home.dart';
 import 'package:flutterlingo/pages/signin.dart';
 import 'package:flutter/material.dart';
+import 'package:flutterlingo/services/database.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -19,8 +20,25 @@ class _SignUpState extends State<SignUp> {
   registration() async {
     if (password.isNotEmpty && email.isNotEmpty && name.isNotEmpty) {
       try {
+        // Create the user with email and password
         UserCredential userCredential = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(email: email, password: password);
+
+        // Get the user's UID
+        String uid = userCredential.user!.uid;
+
+        // Create user data
+        Map<String, dynamic> userInfoMap = {
+          "id": uid,
+          "name": name,
+          "email": email,
+          "isAdmin": false,
+        };
+
+        // Save the user data in Firestore
+        await DatabaseMethods().addUser(uid, userInfoMap);
+
+        // Success message
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: Colors.green,
           content: Text(
@@ -28,6 +46,8 @@ class _SignUpState extends State<SignUp> {
             style: const TextStyle(fontSize: 16.0, color: Colors.white),
           ),
         ));
+
+        // Navigate to HomePage
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => const HomePage()));
       } on FirebaseAuthException catch (e) {
