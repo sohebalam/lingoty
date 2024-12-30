@@ -18,6 +18,7 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
   String email = "", password = "";
   bool isLoading = false;
+  bool _obscureText = true;
 
   TextEditingController mailcontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
@@ -91,16 +92,17 @@ class _SignInState extends State<SignIn> {
                       const SizedBox(height: 20),
                       TextFormField(
                         controller: passwordcontroller,
-                        obscureText: true,
+                        obscureText: _obscureText,
                         decoration: InputDecoration(
-                          prefixIcon: const Icon(Icons.fingerprint),
+                          prefixIcon: const Icon(Icons.lock_outline_rounded),
                           labelText: "Password",
                           hintText: "Enter your password",
                           border: const OutlineInputBorder(),
                           suffixIcon: IconButton(
                             onPressed: () {
                               setState(() {
-                                passwordcontroller.text = "";
+                                // passwordcontroller.text = "";
+                                _obscureText = !_obscureText;
                               });
                             },
                             icon: const Icon(Icons.remove_red_eye_sharp),

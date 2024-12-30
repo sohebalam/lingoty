@@ -16,6 +16,7 @@ class _SignUpState extends State<SignUp> {
   TextEditingController namecontroller = TextEditingController();
   TextEditingController mailcontroller = TextEditingController();
   TextEditingController passwordcontroller = TextEditingController();
+  bool _obscureText = true;
 
   registration() async {
     if (password.isNotEmpty && email.isNotEmpty && name.isNotEmpty) {
@@ -141,24 +142,33 @@ class _SignUpState extends State<SignUp> {
                       ),
                       const SizedBox(height: 20.0),
                       TextFormField(
-                        controller: passwordcontroller,
-                        decoration: InputDecoration(
-                          label: const Text("Password"),
-                          prefixIcon: const Icon(Icons.fingerprint),
-                          border: const OutlineInputBorder(),
-                          prefixIconColor: Theme.of(context).primaryColor,
-                          floatingLabelStyle:
-                              TextStyle(color: Theme.of(context).primaryColor),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              width: 2,
-                              color: Theme.of(context).primaryColor,
+                          controller: passwordcontroller,
+                          decoration: InputDecoration(
+                            label: const Text("Password"),
+                            prefixIcon: const Icon(Icons.lock_outline_rounded),
+                            border: const OutlineInputBorder(),
+                            prefixIconColor: Theme.of(context).primaryColor,
+                            floatingLabelStyle: TextStyle(
+                                color: Theme.of(context).primaryColor),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                width: 2,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  // passwordcontroller.text = "";
+                                  _obscureText = !_obscureText;
+                                });
+                              },
+                              icon: const Icon(Icons.remove_red_eye_sharp),
                             ),
                           ),
-                        ),
-                        obscureText: true,
-                        // style: Theme.of(context).textTheme.bodyText1,
-                      ),
+                          obscureText: _obscureText
+                          // style: Theme.of(context).textTheme.bodyText1,
+                          ),
                       const SizedBox(height: 30.0),
                       SizedBox(
                         width: double.infinity,
