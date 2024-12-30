@@ -5,10 +5,12 @@ class AuthModel {
   final String id;
   final String name;
   final String email;
+  final bool isAdmin;
   AuthModel({
     required this.id,
     required this.name,
     required this.email,
+    required this.isAdmin,
   });
 
   Map<String, dynamic> toMap() {
@@ -16,6 +18,7 @@ class AuthModel {
       'id': id,
       'name': name,
       'email': email,
+      'isAdmin': false,
     };
   }
 
@@ -24,6 +27,7 @@ class AuthModel {
       id: map['id'] ?? "",
       name: map['name'] ?? "",
       email: map['email'] ?? "",
+      isAdmin: map['isAdmin'] ?? "",
     );
   }
 

@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutterlingo/model/auth_model.dart';
+import 'package:flutterlingo/services/model/auth_model.dart';
 
 class UserProvider extends ChangeNotifier {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-  AuthModel _user = AuthModel(id: "", name: "", email: "");
+  AuthModel _user = AuthModel(id: "", name: "", email: "", isAdmin: false);
   bool _isLoading = false;
   AuthModel get user => _user;
   bool get isLoading => _isLoading;
@@ -19,7 +19,10 @@ class UserProvider extends ChangeNotifier {
       await firebaseAuth.createUserWithEmailAndPassword(
           email: email, password: password);
       AuthModel authModel = AuthModel(
-          id: firebaseAuth.currentUser!.uid, name: name, email: email);
+          id: firebaseAuth.currentUser!.uid,
+          name: name,
+          email: email,
+          isAdmin: false);
       await firebaseFirestore
           .collection("users")
           .doc(firebaseAuth.currentUser!.uid)
